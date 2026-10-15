@@ -24,7 +24,10 @@ services:
     restart: unless-stopped
     stop_grace_period: 2m
 
+  # 機器人改跑在 mc-bot 免費 VM（見 deploy/bot-vm.md），這裡預設不啟動，避免重複通知
+  # 還沒搬過去之前要在這台跑的話：docker compose --profile bot up -d
   bot:
+    profiles: ["bot"]
     image: python:3.12-slim
     command: sh -c "pip install --no-cache-dir -q discord.py mcstatus && exec python -u /app/bot.py"
     environment:

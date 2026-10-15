@@ -11,3 +11,7 @@ Minecraft 伺服器（itzg/minecraft-server）加上 Discord 狀態通知機器�
 3. `docker compose up -d`
 
 `.env`、`cf_api_key.txt`、`data/` 已列在 `.gitignore`，不會被提交。
+
+## 機器人獨立 VM
+
+機器人可以跑在另一台免費 e2-micro，讓 Minecraft VM 不玩時關機。步驟見 [deploy/bot-vm.md](deploy/bot-vm.md)。

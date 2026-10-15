@@ -1,0 +1,20 @@
+# 只跑 Discord 機器人（給 mc-bot 免費 VM 用）
+# 用法：在 VM 上把這個檔案命名為 docker-compose.yml，和 bot.py、.env 放在同一個資料夾，然後 docker compose up -d
+# .env 只需要 DISCORD_BOT_TOKEN、DISCORD_CHANNEL_ID、SERVER_ADDRESS（Minecraft VM 的固定 IP:25565）
+services:
+  bot:
+    image: python:3.12-slim
+    command: sh -c "pip install --no-cache-dir -q discord.py mcstatus && exec python -u /app/bot.py"
+    environment:
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      DISCORD_CHANNEL_ID: ${DISCORD_CHANNEL_ID}
+      SERVER_ADDRESS: ${SERVER_ADDRESS}   # 顯示給朋友的位址，機器人也直接查這個位址
+      POLL_SECONDS: "30"
+    volumes:
+      - ./bot.py:/app/bot.py:ro
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
