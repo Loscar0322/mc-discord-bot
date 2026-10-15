@@ -1,0 +1,5 @@
+.env
+cf_api_key.txt
+data/
+__pycache__/
+*.pyc

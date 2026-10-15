@@ -1,0 +1,43 @@
+services:
+  mc:
+    image: itzg/minecraft-server:java17
+    tty: true
+    stdin_open: true
+    ports:
+      - "25565:25565"
+    environment:
+      EULA: "TRUE"
+      TYPE: "AUTO_CURSEFORGE"
+      CF_API_KEY_FILE: "/run/secrets/cf_api_key"
+      CF_PAGE_URL: ${CF_PAGE_URL}
+      # 伺服器用不到的客戶端模組；名稱是 CurseForge 網址上的 slug，請依實際頁面確認
+      CF_EXCLUDE_MODS: ${CF_EXCLUDE_MODS}
+      MEMORY: "10G"                                   # 16GB 的 VM；8GB 的 VM 請改 "5G"
+      JVM_XX_OPTS: "-XX:-OmitStackTraceInFastThrow"   # 崩潰時印出完整堆疊
+      ENABLE_WHITELIST: "true"
+      WHITELIST: ${WHITELIST}
+      VIEW_DISTANCE: "8"
+      SIMULATION_DISTANCE: "6"
+    volumes:
+      - ./data:/data
+      - ./cf_api_key.txt:/run/secrets/cf_api_key:ro
+    restart: unless-stopped
+    stop_grace_period: 2m
+
+  bot:
+    image: python:3.12-slim
+    command: sh -c "pip install --no-cache-dir -q discord.py mcstatus && exec python -u /app/bot.py"
+    environment:
+      DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
+      DISCORD_CHANNEL_ID: ${DISCORD_CHANNEL_ID}
+      SERVER_ADDRESS: ${SERVER_ADDRESS}   # 顯示在通知裡給朋友的位址
+      QUERY_ADDRESS: "mc:25565"           # 機器人在 Docker 內部直接查伺服器
+      POLL_SECONDS: "30"
+    volumes:
+      - ./bot.py:/app/bot.py:ro
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
