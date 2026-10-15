@@ -162,6 +162,7 @@ sudo docker compose logs -f bot
 
 - 預設只有 Discord 伺服器裡有「管理伺服器」權限的人。
 - 想讓朋友也能開：在 `.env` 加 `CONTROL_ROLE_IDS=身分組ID`（或 `CONTROL_USER_IDS=使用者ID`，多個用逗號分隔），再 `sudo docker compose up -d --force-recreate`。ID 在 Discord 開「開發者模式」後，右鍵身分組或使用者 →「複製 ID」。
+- 想讓所有人都能用：`CONTROL_ROLE_IDS` 填伺服器 ID（就是 @everyone 身分組的 ID，日誌 `synced 3 command(s) to 數字` 裡的數字）。
 
 ### 注意
 

@@ -243,9 +243,11 @@ async def check_control(interaction: discord.Interaction) -> bool:
                                                 ephemeral=True)
         return False
     roles = {r.id for r in getattr(interaction.user, "roles", [])}
+    roles.add(interaction.guild_id)   # @everyone 身分組的 ID 就是伺服器 ID，每個成員都有
     if interaction.permissions.manage_guild or interaction.user.id in CONTROL_USER_IDS \
             or roles & CONTROL_ROLE_IDS:
         return True
+    print(f"control denied: user={interaction.user.id} roles={sorted(roles)}", flush=True)
     await interaction.response.send_message("你沒有開關伺服器的權限。", ephemeral=True)
     return False
 
