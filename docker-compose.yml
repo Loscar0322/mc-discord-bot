@@ -30,6 +30,7 @@ services:
     environment:
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
       DISCORD_CHANNEL_ID: ${DISCORD_CHANNEL_ID}
+      STATUS_CHANNEL_ID: ${STATUS_CHANNEL_ID:-}   # 放即時狀態訊息的頻道；留空就用通知頻道
       SERVER_ADDRESS: ${SERVER_ADDRESS}   # 顯示在通知裡給朋友的位址
       QUERY_ADDRESS: "mc:25565"           # 機器人在 Docker 內部直接查伺服器
       POLL_SECONDS: "30"
@@ -40,4 +41,4 @@ services:
       driver: json-file
       options:
         max-size: "5m"
-        max-file: "2"
+        max-file: "2"
