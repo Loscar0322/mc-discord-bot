@@ -9,6 +9,13 @@ services:
       DISCORD_BOT_TOKEN: ${DISCORD_BOT_TOKEN}
       DISCORD_CHANNEL_ID: ${DISCORD_CHANNEL_ID}
       SERVER_ADDRESS: ${SERVER_ADDRESS}   # 顯示給朋友的位址，機器人也直接查這個位址
+      STATUS_CHANNEL_ID: ${STATUS_CHANNEL_ID:-}   # 放即時狀態訊息的頻道；留空就用通知頻道
+      # /start、/stop 要開關的 Minecraft VM
+      GCP_ZONE: ${GCP_ZONE:-asia-east1-b}
+      GCP_INSTANCE: ${GCP_INSTANCE:-minecraft-server}
+      # 除了有「管理伺服器」權限的人，還有誰能用 /start、/stop（Discord ID，逗號分隔）
+      CONTROL_ROLE_IDS: ${CONTROL_ROLE_IDS:-}
+      CONTROL_USER_IDS: ${CONTROL_USER_IDS:-}
       POLL_SECONDS: "30"
     volumes:
       - ./bot.py:/app/bot.py:ro

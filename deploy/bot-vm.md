@@ -107,3 +107,64 @@ sudo docker compose stop bot && sudo docker compose rm -f bot
 - 看日誌：`sudo docker compose logs -f bot`
 - 更新 bot.py 後重啟：`sudo docker compose restart bot`
 - 改 `.env` 後：`sudo docker compose up -d --force-recreate`
+
+## 開關機指令（/start、/stop）
+
+機器人用 mc-bot VM 的服務帳戶呼叫 GCP，開關 `minecraft-server`。只要給權限，不需要金鑰檔。
+
+### 1. 給 mc-bot 服務帳戶權限（Cloud Shell）
+
+```bash
+gcloud config set project mcserver-511615
+
+# 自訂角色：只能查詢、開機、關機
+gcloud iam roles create mcBotVmControl --project=mcserver-511615 \
+  --title="MC bot VM control" \
+  --permissions=compute.instances.get,compute.instances.start,compute.instances.stop
+
+# 只授權在 minecraft-server 這台 VM 上
+gcloud compute instances add-iam-policy-binding minecraft-server --zone=asia-east1-b \
+  --member=serviceAccount:mc-bot@mcserver-511615.iam.gserviceaccount.com \
+  --role=projects/mcserver-511615/roles/mcBotVmControl
+```
+
+確認 mc-bot 用的是這個服務帳戶，且範圍是 `cloud-platform`：
+
+```bash
+gcloud compute instances describe mc-bot --zone=us-west1-b \
+  --format="value(serviceAccounts[0].email,serviceAccounts[0].scopes)"
+```
+
+應該看到 `mc-bot@mcserver-511615.iam.gserviceaccount.com` 和 `.../auth/cloud-platform`。不是的話（要先關機才能改）：
+
+```bash
+gcloud compute instances stop mc-bot --zone=us-west1-b
+gcloud compute instances set-service-account mc-bot --zone=us-west1-b \
+  --service-account=mc-bot@mcserver-511615.iam.gserviceaccount.com --scopes=cloud-platform
+gcloud compute instances start mc-bot --zone=us-west1-b
+```
+
+### 2. 更新機器人（mc-bot 的 SSH）
+
+上傳新的 `bot.py` 和 `docker-compose.bot.yml`，然後：
+
+```bash
+mv ~/bot.py ~/mc-bot/bot.py
+mv ~/docker-compose.bot.yml ~/mc-bot/docker-compose.yml
+cd ~/mc-bot
+sudo docker compose up -d --force-recreate
+sudo docker compose logs -f bot
+```
+
+看到 `synced 3 command(s)` 就好了。預設開關的是 `asia-east1-b` 的 `minecraft-server`；不一樣的話在 `.env` 設 `GCP_ZONE`、`GCP_INSTANCE`。
+
+### 誰能用
+
+- 預設只有 Discord 伺服器裡有「管理伺服器」權限的人。
+- 想讓朋友也能開：在 `.env` 加 `CONTROL_ROLE_IDS=身分組ID`（或 `CONTROL_USER_IDS=使用者ID`，多個用逗號分隔），再 `sudo docker compose up -d --force-recreate`。ID 在 Discord 開「開發者模式」後，右鍵身分組或使用者 →「複製 ID」。
+
+### 注意
+
+- `/stop` 有人在線時不會關機，要強制關請用 `/stop force:True`。
+- `/stop` 是讓 VM 正常關機：Docker 會對 Minecraft 送出停止訊號，Minecraft 存檔後才結束。保險起見，請大家先下線再關。
+- `minecraft-server` 上不要留舊的 `bot` 容器（見上面第 5 步），不然開機後會重複通知。

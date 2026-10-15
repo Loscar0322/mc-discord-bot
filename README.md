@@ -10,6 +10,7 @@ Minecraft 伺服器（itzg/minecraft-server）加上 Discord 狀態通知機器�
 - **`/status` 指令**：即時查看在線人數、玩家名單、版本、延遲、連線位址
 - **即時狀態訊息**：機器人會在頻道發一則狀態訊息並釘選，每次查詢後自動更新；重啟後會沿用同一則
 - **狀態列**：機器人名稱下方顯示「3/20 人在線」，伺服器離線時顯示「伺服器離線」
+- **`/start`、`/stop`**：開關 Minecraft 的 GCP VM（機器人跑在另一台 GCP VM 上時才能用，設定見 [deploy/bot-vm.md](deploy/bot-vm.md#開關機指令startstop)）
 
 ## Discord 權限
 
